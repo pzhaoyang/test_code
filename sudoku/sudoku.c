@@ -2,10 +2,10 @@
 #include "string.h"
 
 /*
-*         =========== Sudoku Frame ===================       
-*  
+*         =========== Sudoku Frame ===================
+*
 *           1   2   3   4   5   6   7   8   9
-*        A  
+*        A
 *        B
 *        C
 *        D
@@ -38,9 +38,9 @@ static sudoku_t issue;
 void hexdump(char *p, int size){
     char *ptr = p;
     int i;
-    
+
     if(ptr == NULL|| size < 0) return;
-    
+
     for(i=0; i<size; i++, ptr++){
         if(i%16 == 0) printf("\n");
         switch(*ptr){
@@ -75,7 +75,7 @@ void print_sudoku(result_t p[9][9]){
                 }
                 printf("}%s", SPACE_3);
             }
-            
+
         }
         printf("\n");
     }
@@ -86,13 +86,13 @@ int read_template(){
     FILE* fp;
     char line[SIZE+1];
     int i;
-    
+
     fp = fopen("template", "r");
     if(fp == NULL){
         printf("Cannot open the template file!.\n");
         return -1;
     }
-    
+
     printf("\nTemplate:\n{\n");
     for(i=0; NULL != fgets((void *)line, sizeof(line), fp);){
         if(strlen(line) == SIZE){
@@ -114,7 +114,7 @@ void resolve_init(){
     #endif
     for(x=0; x<SIZE; x++){
         for(y=0; y<SIZE; y++){
-            if(issue.template[x][y] != '0' ){ 
+            if(issue.template[x][y] != '0' ){
                 issue.sresult[x][y].value[0] = issue.template[x][y];
                 issue.sresult[x][y].confirmed = 1;
                 #if DEBUG
@@ -122,7 +122,7 @@ void resolve_init(){
                 #endif
                 continue;
             }
-            
+
             issue.sresult[x][y].confirmed = 0;
             #if DEBUG
                 printf("0(%d) ", issue.sresult[x][y].confirmed);
@@ -143,7 +143,7 @@ void resolve_init(){
 int update_confirm(int row, int colum){
     int statistics, locate, z;
     result_t (*p)[SIZE] = issue.sresult;
-    
+
     //statistics and then to update confirmed value
     for(statistics=0, z=0; z<SIZE; z++){
         if(p[row][colum].value[z] != '0'){
@@ -155,7 +155,7 @@ int update_confirm(int row, int colum){
         // fixed a cell number
         p[row][colum].value[0] = p[row][colum].value[locate];
         p[row][colum].confirmed = 1;
-        
+
         return 0;
     }
     return -1;
@@ -164,7 +164,7 @@ int update_confirm(int row, int colum){
 void cell_compare(int need_compared_row, int need_compared_colum){
     int r, c, z;
     result_t (*p)[SIZE] = issue.sresult;
-    
+
     for(z=0; z<SIZE; z++){
         if(p[need_compared_row][need_compared_colum].value[z] == '0') continue;
         //row compare r is fixed. acture is colum compare
@@ -175,7 +175,7 @@ void cell_compare(int need_compared_row, int need_compared_colum){
                 p[need_compared_row][need_compared_colum].value[z] = '0'; //if this is equal, then remove it using '0'
             }
         }
-        
+
         //colum compare c is fixed, acture is row compare
         for(r=0; r<SIZE; r++){
             if(p[r][need_compared_colum].confirmed != 1) continue;
@@ -184,19 +184,22 @@ void cell_compare(int need_compared_row, int need_compared_colum){
                 p[need_compared_row][need_compared_colum].value[z] = '0'; //if this is equal, then remove it using '0'
             }
         }
-        
+
         //small square compare
         r = (need_compared_row/3)*3;
         c = (need_compared_colum/3)*3;
         for(; r<SIZE/3; r++){
-			for(; c<SIZE/3; c++){
-				if(p[r][c].confirmed != 1) continue;
+            for(; c<SIZE/3; c++){
+                if(p[r][c].confirmed != 1) continue;
 
-				if(p[r][c].value[0] == p[need_compared_row][need_compared_colum].value[z]){
-					p[need_compared_row][need_compared_colum].value[z] = '0'; //if this is equal, then remove it using '0'
-				}
-			}
+                if(p[r][c].value[0] == p[need_compared_row][need_compared_colum].value[z]){
+                    p[need_compared_row][need_compared_colum].value[z] = '0'; //if this is equal, then remove it using '0'
+                }
+            }
         }
+
+        //relate compare
+
 
     }
 }
@@ -205,9 +208,9 @@ void cell_compare(int need_compared_row, int need_compared_colum){
 void exclude_exist_num(){
     int x, y;
     result_t (*p)[SIZE] = issue.sresult;
-    
+
     if( p == NULL) return;
-   
+
     for(x=0; x<SIZE; x++){
         for(y=0; y<SIZE; y++){
             if( p[x][y].confirmed == 1){
@@ -219,8 +222,8 @@ void exclude_exist_num(){
             }
         }
     }
-    
-    
+
+
 }
 
 void resolve(){
@@ -235,11 +238,11 @@ void init(){
 
 int main(int argc, char* argv[]){
    init();
-   
+
    read_template();
 
    resolve();
-   
+
    print_sudoku(issue.sresult);
-   return 0;  
+   return 0;
 }
