@@ -162,7 +162,7 @@ int update_confirm(int row, int colum){
 }
 
 void cell_compare(int need_compared_row, int need_compared_colum){
-    int r, c, s, z;
+    int r, c, z;
     result_t (*p)[SIZE] = issue.sresult;
     
     for(z=0; z<SIZE; z++){
@@ -186,17 +186,18 @@ void cell_compare(int need_compared_row, int need_compared_colum){
         }
         
         //small square compare
-/*        r = need_compared_row%3;
-        c = need_compared_colum%3;
-        switch
-        for(s=0; s<SIZE; r++){
-            if(p[r][c].confirmed != 1) continue;
+        r = (need_compared_row/3)*3;
+        c = (need_compared_colum/3)*3;
+        for(; r<SIZE/3; r++){
+			for(; c<SIZE/3; c++){
+				if(p[r][c].confirmed != 1) continue;
 
-            if(p[r][need_compared_colum].value[0] == p[need_compared_row][need_compared_colum].value[z]){
-                p[need_compared_row][need_compared_colum].value[z] = '0'; //if this is equal, then remove it using '0'
-            }
+				if(p[r][c].value[0] == p[need_compared_row][need_compared_colum].value[z]){
+					p[need_compared_row][need_compared_colum].value[z] = '0'; //if this is equal, then remove it using '0'
+				}
+			}
         }
-*/
+
     }
 }
 
