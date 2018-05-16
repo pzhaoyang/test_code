@@ -34,20 +34,30 @@ void hexdump(char *p, int size){
     
     for(i=0; i<size; i++, ptr++){
         if(i%16 == 0) printf("\n");
-        printf("0x%02x ", *ptr);
+        switch(*ptr){
+            case 0x0a:
+                printf("0x(0A) ");
+                break;
+            case 0x0d:
+                printf("0x0D ");
+                break;
+            default:
+                printf("0x%02x ", *ptr);
+        }
     }
+    printf("\n");
 }
-void print_sudoku(int p[9][9]){
+void print_sudoku(char p[9][9]){
     int c,r;
     if( p == NULL){
         printf("\n******\nThe sudoku is invalid!\n******\n");
         return;
     }
-    
-    
+
+    printf("\nThe Result:\n");
     for(c=0; c<9; c++){
         for(r=0; r<9; r++){
-            printf("%d ", p[c][r]+'0');
+            printf("%c ", p[c][r]);
         }
         printf("\n");
     }
@@ -63,25 +73,26 @@ int read_template(){
         printf("Cannot open the template file!.\n");
         return -1;
     }
-
-    for(i=0; NULL != fgets((void *)line, sizeof(line), fp); i++){
-        printf("%s", line);
-        memcpy((void *)issue.template[i], (void *)line, strlen(line));
-        printf("hexdump (line:%d) (%d):\n", strlen(line),sizeof(issue.template[i]));
-        hexdump(issue.template[i], sizeof(issue.template[i]));
+    
+    printf("\nTemplate:\n{\n");
+    for(i=0; NULL != fgets((void *)line, sizeof(line), fp);){
+        if(strlen(line) == SIZE){
+            memcpy((void *)issue.template[i++], (void *)line, SIZE);
+            printf("  %s\n", line);
+        }
     }
+    printf("}\n");
 
     fclose(fp);
+
     return 0;
 }
 
 
 int main(int argc, char* argv[]){
-   int s[9][9] = {0};
-   printf("Start SUDOKU...\n");
    
    read_template();
 
-   //print_sudoku(issue.template);
+   print_sudoku(issue.template);
    return 0;  
 }
