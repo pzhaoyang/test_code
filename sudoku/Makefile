@@ -9,10 +9,10 @@ exe = bin
 .PHONY: bin
 
 bin: $(objs)
-	$(CC) $(CFLAGS) -o $@ $<
+	@$(CC) $(CFLAGS) -o $@ $<
 
 .c.o:
-	$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $< -o $@
 
 
 .PHONY: clean

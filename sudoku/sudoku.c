@@ -168,7 +168,16 @@ int update_confirm(int row, int colum){
 }
 
 // dist block exclude way:
-void dist_block_compare(){
+void block_compare(int row, int colum){
+    int box;
+    result_t (*p)[SIZE] = issue.sresult;
+
+    if(p[row][colum].confirmed != 1) return;
+
+    box=row/3*3 + colum/3 +1;
+    printf("[%d,%d].%c box=%d\n", row, colum, p[row][colum].value[0], box);
+    
+    
 
 }
 
@@ -231,6 +240,7 @@ void exclude_exist_num(){
     for(x=0; x<SIZE; x++){
         for(y=0; y<SIZE; y++){
             if( p[x][y].confirmed == 1){
+               block_compare(x, y);
                continue;
             }
 
@@ -241,8 +251,6 @@ void exclude_exist_num(){
             }
         }
     }
-
-
 }
 
 void resolve(){
