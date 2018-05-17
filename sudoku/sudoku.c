@@ -167,95 +167,58 @@ int update_confirm(int row, int colum){
     return -1;
 }
 
-void cell_compare(int need_compared_row, int need_compared_colum){
+// dist block exclude way:
+void dist_block_compare(){
+
+}
+
+void base_compare(int need_compared_row, int need_compared_colum){
     int r, c, z;
-    int uniqe;
     result_t (*p)[SIZE] = issue.sresult;
 
     for(z=0; z<SIZE; z++){
+
+        //skip invalid number
         if(p[need_compared_row][need_compared_colum].value[z] == NumNULL) continue;
+
+
         //row compare r is fixed. acture is colum compare
         for(c=0; c<SIZE; c++){
+            //skip unconfirmed number, just using confirmed number to compare specified cell
             if(p[need_compared_row][c].confirmed != 1) continue;
 
             if(p[need_compared_row][c].value[0] == p[need_compared_row][need_compared_colum].value[z]){
-                p[need_compared_row][need_compared_colum].value[z] = NumNULL; //if this is equal, then remove it using NumNULL
+                //if this is equal, then remove it using NumNULL
+                p[need_compared_row][need_compared_colum].value[z] = NumNULL;
             }
         }
 
         //colum compare c is fixed, acture is row compare
         for(r=0; r<SIZE; r++){
+            //skip unconfirmed number, just using confirmed number to compare specified cell
             if(p[r][need_compared_colum].confirmed != 1) continue;
 
             if(p[r][need_compared_colum].value[0] == p[need_compared_row][need_compared_colum].value[z]){
-                p[need_compared_row][need_compared_colum].value[z] = NumNULL; //if this is equal, then remove it using NumNULL
+                //if this is equal, then remove it using NumNULL
+                p[need_compared_row][need_compared_colum].value[z] = NumNULL;
             }
         }
 
-        //small square compare
+        //box compare
         r = (need_compared_row/3)*3;
         for(; r < (need_compared_row/3)*3+3; r++){
             c = (need_compared_colum/3)*3;
             for(; c < (need_compared_colum/3)*3+3; c++){
+                //skip unconfirmed number, just using confirmed number to compare specified cell
                 if(p[r][c].confirmed != 1) continue;
 
                 if(p[r][c].value[0] == p[need_compared_row][need_compared_colum].value[z]){
-                    p[need_compared_row][need_compared_colum].value[z] = NumNULL; //if this is equal, then remove it using NumNULL
+                    //if this is equal, then remove it using NumNULL
+                    p[need_compared_row][need_compared_colum].value[z] = NumNULL;
                 }
             }
         }
-        
-        //x wing compare 
-        if( SIZE == need_compared_row + need_compared_colum + 1 || //   line "/" {{0,8}...{8,0}}
-            need_compared_row == need_compared_colum ){ // line "\"  {{0,0}...{8,8}}
-            if( p[need_compared_row][need_compared_colum].confirmed == 1) continue;
-            
-            if(need_compared_row == need_compared_colum){
-                for(r=0, c=0; r<SIZE && c<SIZE; r++, c++){
-                    if(p[r][c].confirmed != 1) continue;
-                    
-                    if(p[r][c].value[0] == p[need_compared_row][need_compared_colum].value[z]){
-                        p[need_compared_row][need_compared_colum].value[z] = NumNULL; //if this is equal, then remove it using NumNULL
-                    }
-                }
-            }else{
-                for(r=0,c=SIZE-1; r<SIZE && c>=0; r++, c-- ){
-                    if(p[r][c].confirmed != 1) continue;
-                    
-                    if(p[r][c].value[0] == p[need_compared_row][need_compared_colum].value[z]){
-                        p[need_compared_row][need_compared_colum].value[z] = NumNULL; //if this is equal, then remove it using NumNULL
-                    }
-                }
-            }
-        }
-        
-        //relate compare: compare a square find the uniqe number
-        uniqe=1;
-        r = (need_compared_row/3)*3;
-        for(; r < (need_compared_row/3)*3+3; r++){
-            c = (need_compared_colum/3)*3;
-            for(; c < (need_compared_colum/3)*3+3; c++){
-                if(p[r][c].confirmed == 1) continue;
-                
-                {
-                    int tz;
-                    for(tz=0; tz<SIZE; tz++){
-                        if(p[r][c].value[tz] == p[need_compared_row][need_compared_colum].value[z]){
-                            // current cell has a same number with need_compare cell, goto next cell
-                            uniqe=0;
-                            break;
-                        }
-                    }
-                }
-
-            }
-        }
-        
-        
-        
-        
     }
-
 }
 
 
@@ -271,7 +234,7 @@ void exclude_exist_num(){
                continue;
             }
 
-            cell_compare(x, y);
+            base_compare(x, y);
 
             if(0 == update_confirm(x, y)){
                 exclude_exist_num();
