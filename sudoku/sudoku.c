@@ -20,6 +20,7 @@
 #define DEBUG 1
 #define SPACE_13 "             "
 #define SPACE_3 "   "
+#define NumNULL   0x30
 
 #define SIZE 9
 
@@ -71,6 +72,11 @@ void print_sudoku(result_t p[9][9]){
             }else{
                 printf("{");
                 for(v=0; v<SIZE; v++){
+                    if(p[r][c].value[v] == NumNULL){
+                        printf(" ");
+                        continue;
+                    }
+
                     printf("%c", p[r][c].value[v]);
                 }
                 printf("}%s", SPACE_3);
@@ -114,7 +120,7 @@ void resolve_init(){
     #endif
     for(x=0; x<SIZE; x++){
         for(y=0; y<SIZE; y++){
-            if(issue.template[x][y] != '0' ){
+            if(issue.template[x][y] != NumNULL ){
                 issue.sresult[x][y].value[0] = issue.template[x][y];
                 issue.sresult[x][y].confirmed = 1;
                 #if DEBUG
@@ -166,13 +172,13 @@ void cell_compare(int need_compared_row, int need_compared_colum){
     result_t (*p)[SIZE] = issue.sresult;
 
     for(z=0; z<SIZE; z++){
-        if(p[need_compared_row][need_compared_colum].value[z] == '0') continue;
+        if(p[need_compared_row][need_compared_colum].value[z] == NumNULL) continue;
         //row compare r is fixed. acture is colum compare
         for(c=0; c<SIZE; c++){
             if(p[need_compared_row][c].confirmed != 1) continue;
 
             if(p[need_compared_row][c].value[0] == p[need_compared_row][need_compared_colum].value[z]){
-                p[need_compared_row][need_compared_colum].value[z] = '0'; //if this is equal, then remove it using '0'
+                p[need_compared_row][need_compared_colum].value[z] = NumNULL; //if this is equal, then remove it using NumNULL
             }
         }
 
@@ -181,7 +187,7 @@ void cell_compare(int need_compared_row, int need_compared_colum){
             if(p[r][need_compared_colum].confirmed != 1) continue;
 
             if(p[r][need_compared_colum].value[0] == p[need_compared_row][need_compared_colum].value[z]){
-                p[need_compared_row][need_compared_colum].value[z] = '0'; //if this is equal, then remove it using '0'
+                p[need_compared_row][need_compared_colum].value[z] = NumNULL; //if this is equal, then remove it using NumNULL
             }
         }
 
@@ -193,7 +199,7 @@ void cell_compare(int need_compared_row, int need_compared_colum){
                 if(p[r][c].confirmed != 1) continue;
 
                 if(p[r][c].value[0] == p[need_compared_row][need_compared_colum].value[z]){
-                    p[need_compared_row][need_compared_colum].value[z] = '0'; //if this is equal, then remove it using '0'
+                    p[need_compared_row][need_compared_colum].value[z] = NumNULL; //if this is equal, then remove it using NumNULL
                 }
             }
         }
