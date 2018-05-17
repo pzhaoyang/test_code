@@ -167,8 +167,36 @@ int update_confirm(int row, int colum){
     return -1;
 }
 
-void cell_compare(int need_compared_row, int need_compared_colum){
+
+void small_square_compare(int need_compared_row, int need_compared_colum){
     int r, c, z;
+
+    result_t (*p)[SIZE] = issue.sresult;
+    
+    
+    
+    printf("small_square_compare:{\n");
+    
+    r = (need_compared_row/3)*3;
+    for(; r < SIZE/3; r++){
+        c = (need_compared_colum/3)*3;
+        for(; c < SIZE/3; c++){
+            printf("---r=%d, c=%d---p[r][c].confirmed=%d---\n", r, c, p[r][c].confirmed);
+            if(p[r][c].confirmed != 1) continue;
+                for(z=0; z<SIZE; z++){
+                    if(p[need_compared_row][need_compared_colum].value[z] == NumNULL) continue;// skip the NumNull value
+                    
+                    if(p[r][c].value[0] == p[need_compared_row][need_compared_colum].value[z]){
+                        p[need_compared_row][need_compared_colum].value[z] = NumNULL; //if this is equal, then remove it using NumNULL
+                    }
+                }
+        }
+    }
+    printf("}\n\n");
+}
+
+void cell_compare(int need_compared_row, int need_compared_colum){
+    int r, c, z, max1,max2;
     result_t (*p)[SIZE] = issue.sresult;
 
     for(z=0; z<SIZE; z++){
@@ -193,11 +221,14 @@ void cell_compare(int need_compared_row, int need_compared_colum){
 
         //small square compare
         r = (need_compared_row/3)*3;
-        c = (need_compared_colum/3)*3;
-        for(; r<SIZE/3; r++){
-            for(; c<SIZE/3; c++){
+        max1=r+3;
+        for(; r<max1; r++){
+            c = (need_compared_colum/3)*3;
+            max2=c+3;
+            for(; c < max2; c++){
                 if(p[r][c].confirmed != 1) continue;
-
+                
+                printf("cell[%d,%d], square[%d,%d]\n", need_compared_row, need_compared_colum, r, c);
                 if(p[r][c].value[0] == p[need_compared_row][need_compared_colum].value[z]){
                     p[need_compared_row][need_compared_colum].value[z] = NumNULL; //if this is equal, then remove it using NumNULL
                 }
@@ -205,9 +236,9 @@ void cell_compare(int need_compared_row, int need_compared_colum){
         }
 
         //relate compare
-
-
     }
+    
+    //small_square_compare(need_compared_row, need_compared_colum);
 }
 
 
@@ -222,7 +253,9 @@ void exclude_exist_num(){
             if( p[x][y].confirmed == 1){
                continue;
             }
+            printf("...out... cell[%d,%d]\n", x, y);
             cell_compare(x, y);
+
             if(0 == update_confirm(x, y)){
                 exclude_exist_num();
             }
