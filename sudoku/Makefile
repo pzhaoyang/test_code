@@ -1,7 +1,7 @@
 
 CC = gcc
 CFLAGS = -g -Wall
-srcs = sudoku.c
+srcs = sudoku_skeleton.c
 objs = $(srcs:.c=.o)
 
 exe = bin

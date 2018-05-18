@@ -23,6 +23,7 @@
 #define NumNULL   0x30
 
 #define SIZE 9
+#define BOXSIZE 3
 
 typedef struct result{
     char value[SIZE]; //if the value is confirmed, the value[0] will be the confirmed value, and others will be 0.
@@ -169,13 +170,92 @@ int update_confirm(int row, int colum){
 
 // dist block exclude way:
 void block_compare(int row, int colum){
-    int box;
+    int boxId, box1Id, box2Id, boxColum, boxRow;
+    int cellRow, cellColum;
+    int r;
+    int c, z;
+    int hasno;
     result_t (*p)[SIZE] = issue.sresult;
 
     if(p[row][colum].confirmed != 1) return;
 
-    box=row/3*3 + colum/3 +1;
-    printf("[%d,%d].%c box=%d\n", row, colum, p[row][colum].value[0], box);
+    boxColum = colum/BOXSIZE;
+    boxRow = row/BOXSIZE;
+    boxId = boxRow * BOXSIZE + boxColum;
+    
+    cellRow = row%BOXSIZE;
+    cellColum = colum%BOXSIZE;
+    
+    switch(boxId%BOXSIZE){
+        case 0:
+            box1Id = boxId + 1;
+            box2Id = boxId + 2;
+            break;
+        case 1:
+            box1Id = boxId - 1;
+            box2Id = boxId + 1;
+            break;
+        case 2:
+            box1Id = boxId - 1;
+            box2Id = boxId - 2;
+            break;
+    }
+
+    //row block exclude
+    
+    //three row boxes line cycle
+    for(r=0; r<BOXSIZE; r++){ 
+        if(cellRow == r) continue;  // skip target line
+        
+        for(box=0; c<BOXSIZE; c++){
+            
+        }
+    
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    hasno=0;
+    z=0;
+    for(r=0; r<BOXSIZE; r++){ //three row boxes line cycle
+        if(cellRow == r) continue;  // skip target line
+        
+        for(c=0; c<BOXSIZE; c++){
+            if(p[box1Id/BOXSIZE + r][box1Id%BOXSIZE + c].confirmed == 1){
+                if(p[box1Id/BOXSIZE + r][box1Id%BOXSIZE + c].value[0] == p[row][colum].value[0]){
+                    //if row neighbor other lines has same number, needn't judge, skip this row.
+                    hasno = 0;
+                    break;
+                }else{
+                    //if row neighbor other lines has confirmed number, needn't judge, skip this cell to next cell.
+                    hasno = hasno | (0x01 << c);
+                    continue;
+                }
+                
+            }else{
+                for(z=0; z<SIZE; z++){
+                    if(p[box1Id/BOXSIZE + r][box1Id%BOXSIZE + c].value[z] == p[row][colum].value[0]) {
+                        break;
+                    }
+                }
+                if(z == SIZE){
+                    hasno = hasno | (0x01 << c);
+                }
+            }
+        }
+        
+        if(z == SIZE && ){
+            //there is no same value, so box1Id row[box1Id/BOXSIZE + r] has no that number, the box2Id another row must has no the value
+        }
+        
+        
+    }
     
     
 
