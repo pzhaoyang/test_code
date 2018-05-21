@@ -1,0 +1,10 @@
+#!/bin/sh
+
+make clean && make
+
+if [ $? = 0 ]; then
+    echo -e bin result:\n
+    ./bin
+else
+    echo "make error!"
+fi
