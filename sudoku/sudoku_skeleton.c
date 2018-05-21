@@ -49,7 +49,7 @@ int read_template(){
     int row;
     int boxid;
 
-    fp = fopen("template", "r");
+    fp = fopen("template.expert", "r");
     if(fp == NULL){
         printf("Cannot open the template file!.\n");
         return -1;
@@ -70,7 +70,6 @@ int read_template(){
                 issue[boxid].stat.confirmed_num += 1;
                 issue[boxid].stat.confirmed_rows[r] += 1;
                 issue[boxid].stat.confirmed_colums[c] += 1;
-                issue[boxid].stat.
             }
         }
     }
