@@ -1,5 +1,6 @@
 #include "stdio.h"
 #include "string.h"
+#include "time.h"
 
 /*
 *         =========== Sudoku Frame ===================
@@ -58,6 +59,17 @@ void hexdump(char *p, int size){
     }
     printf("\n");
 }
+
+unsigned long long get_current_timestamp() {
+    struct timespec ts;
+    unsigned long long time_stamp;
+
+    clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+    time_stamp = (ts.tv_sec * 1000000ULL + (ts.tv_nsec / 1000));
+
+    return time_stamp;
+}
+
 void print_sudoku(result_t (*p)[9]){
     int c,r,v;
     if( p == NULL){
@@ -248,6 +260,9 @@ void init(){
 
 
 int main(int argc, char* argv[]){
+   unsigned long long start, end;
+
+   start = get_current_timestamp();
    init();
 
    read_template();
@@ -255,5 +270,9 @@ int main(int argc, char* argv[]){
    resolve();
 
    print_sudoku(issue.sresult);
+
+   end = get_current_timestamp();
+   printf("The Execute Time: %llu ns\n", end-start);
+
    return 0;
 }
