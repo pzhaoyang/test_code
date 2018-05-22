@@ -1,10 +1,12 @@
 #!/bin/sh
 
+exe=bin
+[ "$1" = "sk" ] && exe=bin_sk
 make clean && make
 
 if [ $? = 0 ]; then
-    echo -e bin result:\n
-    ./bin
+    echo -e "$exe result:\n"
+    ./$exe
 else
     echo "make error!"
 fi
