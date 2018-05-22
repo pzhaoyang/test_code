@@ -14,8 +14,8 @@ typedef struct box_stat{
     int             confirmed_rows[BOXSIZE];      //confirmed row                      like: row1: confirmed(3), row2: unconfirmed(<3), row3: confirmed(3)  
     int             confirmed_colums[BOXSIZE];    //confirmed colum                    like: colum1: confirmed(3), colum2: unconfirmed(<3), colum3: confirmed(3)
     int             unconfirmed_value_num[TABLESIZE];   //unconfirmed value numbers in box    
-    int             unconfirmed_value_num_rows[BOXSIZE];  //unconfirmed value numbers of each rows in a box
-    int             unconfirmed_value_num_colums[BOXSIZE];  //unconfirmed value numbers of each colums in a box
+    int             unconfirmed_value_num_rows[BOXSIZE][TABLESIZE];  //unconfirmed values numbers of each rows in a box
+    int             unconfirmed_value_num_colums[BOXSIZE][TABLESIZE];  //unconfirmed values numbers of each colums in a box
 }stat_t;
 
 typedef struct cell{
@@ -59,28 +59,40 @@ void debug_stat(){
             int boxid = row/BOXSIZE*3 + colum/BOXSIZE;
             
             int index;
-            printf("-------------\n");
-            printf("boxid:\t\t\t%d\n", boxid);
+            printf("-------------------------------------------------------------------------------------\n");
+            printf("boxid:\t\t\t\t\t%d\n", boxid);
             
-            printf("confirmed_num:\t\t");
+            printf("confirmed_num:\t\t\t\t");
             printf("%d", issue[boxid].stat.confirmed_num);
             printf("\n");
             
-            printf("confirmed_rows[0~2]:\t");
+            printf("confirmed_rows[0~2]:\t\t\t");
             for(index=0; index<BOXSIZE; index++){
                 printf("%d", issue[boxid].stat.confirmed_rows[index]);
             }
             printf("\n");
 
-            printf("confirmed_colums[0~2]:\t");
+            printf("confirmed_colums[0~2]:\t\t\t");
             for(index=0; index<BOXSIZE; index++){
                 printf("%d", issue[boxid].stat.confirmed_colums[index]);
             }
             printf("\n");
             
-            printf("unconfirmed_value_num[0~8]:\t");
+            printf("unconfirmed_value_num[0~8]:\t\t");
             for(index=0; index<TABLESIZE; index++){
-                printf("%d(%d) ", issue[boxid].stat.unconfirmed_value_num[index]);
+                printf("%d(%d) ", index+1, issue[boxid].stat.unconfirmed_value_num[index]);
+            }
+            printf("\n");
+
+            printf("unconfirmed_value_num_rows[0~2]:\t");
+            for(index=0; index<BOXSIZE; index++){
+                printf("%d(%d) ", index+1, issue[boxid].stat.unconfirmed_value_num_rows[index]);
+            }
+            printf("\n");
+
+            printf("unconfirmed_value_num_colums[0~2]:\t");
+            for(index=0; index<BOXSIZE; index++){
+                printf("%d(%d) ", index+1, issue[boxid].stat.unconfirmed_value_num_colums[index]);
             }
             printf("\n");
         }
@@ -150,7 +162,7 @@ int read_template(){
     int row;
     int boxid;
 
-    fp = fopen("template.expert", "r");
+    fp = fopen("template.easy", "r");
     if(fp == NULL){
         printf("Cannot open the template file!.\n");
         return -1;
@@ -167,15 +179,23 @@ int read_template(){
         for(r=0; r<BOXSIZE; r++){
             for(c=0; c<BOXSIZE; c++){
                 if(line[issue[boxid].position.row + r ][issue[boxid].position.colum + c] != NumNULL){
+					int i;
+					int index=(int)(line[issue[boxid].position.row + r ][issue[boxid].position.colum + c] - NumNULL);
+
                     issue[boxid].cell[r][c].value[0] = line[issue[boxid].position.row + r ][issue[boxid].position.colum + c];    
                     issue[boxid].cell[r][c].confirmed = 1;
                     
                     issue[boxid].stat.confirmed_num += 1;
                     issue[boxid].stat.confirmed_rows[r] += 1;
                     issue[boxid].stat.confirmed_colums[c] += 1;
-                    issue[boxid].stat.unconfirmed_value_num[(int)(line[issue[boxid].position.row + r ][issue[boxid].position.colum + c] - NumNULL)] -= 1; //when a value is confirmed the unconfirmed value will minus 1.
-                    issue[boxid].stat.unconfirmed_value_num_rows[r] -= 1;
-                    issue[boxid].stat.unconfirmed_value_num_colums[c] -= 1;
+					
+					for(i=0; i< TABLESIZE; i++){
+						issue[boxid].stat.unconfirmed_value_num[i] -= 1; //when a value is confirmed the unconfirmed value will minus 1.
+					}
+					issue[boxid].stat.unconfirmed_value_num[index] = 0; // the confirmed value in unconfirmed array is 0.
+					
+					issue[boxid].stat.unconfirmed_value_num_rows[r] -= 1;  //the current row unconfirmed 
+					issue[boxid].stat.unconfirmed_value_num_colums[c] -= 1;
                 }
             }
         }
@@ -187,7 +207,7 @@ int read_template(){
 
     fclose(fp);
 
-    //debug_stat();
+    debug_stat();
     return 0;
 }
 
@@ -224,6 +244,7 @@ int init(){
         issue[boxid].stat.confirmed_num = 0;
     }
     
+	//debug_stat();
     return read_template();
 }
 
