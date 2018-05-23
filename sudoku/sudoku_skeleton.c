@@ -58,7 +58,7 @@ void debug_stat(){
             //int c = colum%BOXSIZE;            
             int boxid = row/BOXSIZE*3 + colum/BOXSIZE;
             
-            int index;
+            int i, index;
             printf("-------------------------------------------------------------------------------------\n");
             printf("boxid:\t\t\t\t\t%d\n", boxid);
             
@@ -80,21 +80,28 @@ void debug_stat(){
             
             printf("unconfirmed_value_num[0~8]:\t\t");
             for(index=0; index<TABLESIZE; index++){
-                printf("%d(%d) ", index+1, issue[boxid].stat.unconfirmed_value_num[index]);
+				if(issue[boxid].stat.unconfirmed_value_num[index] != 0){
+					printf("%d(%d) ", index+1, issue[boxid].stat.unconfirmed_value_num[index]);
+				}
             }
             printf("\n");
 
-            printf("unconfirmed_value_num_rows[0~2]:\t");
-            for(index=0; index<BOXSIZE; index++){
-                printf("%d(%d) ", index+1, issue[boxid].stat.unconfirmed_value_num_rows[index]);
-            }
-            printf("\n");
+			for(i=0; i<BOXSIZE; i++){
+				printf("unconfirmed_value_num_rows[%d]:\t\t", i);
+				for(index=0; index<TABLESIZE; index++){
+					printf("%d(%d) ", index+1, issue[boxid].stat.unconfirmed_value_num_rows[i][index]);
+				}
+				printf("\n");
+				
+				
+				printf("unconfirmed_value_num_colums[%d]:\t", i);
+				for(index=0; index<TABLESIZE; index++){
+					printf("%d(%d) ", index+1, issue[boxid].stat.unconfirmed_value_num_colums[i][index]);
+				}
+				printf("\n");
+			}
 
-            printf("unconfirmed_value_num_colums[0~2]:\t");
-            for(index=0; index<BOXSIZE; index++){
-                printf("%d(%d) ", index+1, issue[boxid].stat.unconfirmed_value_num_colums[index]);
-            }
-            printf("\n");
+
         }
     }
     
@@ -180,8 +187,9 @@ int read_template(){
             for(c=0; c<BOXSIZE; c++){
                 if(line[issue[boxid].position.row + r ][issue[boxid].position.colum + c] != NumNULL){
 					int i;
-					int index=(int)(line[issue[boxid].position.row + r ][issue[boxid].position.colum + c] - NumNULL);
+					int index=(int)(line[issue[boxid].position.row + r ][issue[boxid].position.colum + c] - NumNULL - 1);
 
+					printf("index=%d\n", index);
                     issue[boxid].cell[r][c].value[0] = line[issue[boxid].position.row + r ][issue[boxid].position.colum + c];    
                     issue[boxid].cell[r][c].confirmed = 1;
                     
@@ -189,13 +197,17 @@ int read_template(){
                     issue[boxid].stat.confirmed_rows[r] += 1;
                     issue[boxid].stat.confirmed_colums[c] += 1;
 					
-					for(i=0; i< TABLESIZE; i++){
-						issue[boxid].stat.unconfirmed_value_num[i] -= 1; //when a value is confirmed the unconfirmed value will minus 1.
-					}
 					issue[boxid].stat.unconfirmed_value_num[index] = 0; // the confirmed value in unconfirmed array is 0.
+
+					for(i=0; i< TABLESIZE; i++){
+						if(issue[boxid].stat.unconfirmed_value_num[i] > 0){
+							issue[boxid].stat.unconfirmed_value_num[i] -= 1; //when a value is confirmed the unconfirmed value will minus 1.
+						}
+						//printf("unconfirmed_value_num[%d]=%d\n", i, issue[boxid].stat.unconfirmed_value_num[i]);
+					}
 					
-					issue[boxid].stat.unconfirmed_value_num_rows[r] -= 1;  //the current row unconfirmed 
-					issue[boxid].stat.unconfirmed_value_num_colums[c] -= 1;
+					issue[boxid].stat.unconfirmed_value_num_rows[r][index] -= 1;  //the current row unconfirmed 
+					issue[boxid].stat.unconfirmed_value_num_colums[c][index] -= 1;
                 }
             }
         }
@@ -234,9 +246,13 @@ int init(){
         }
 
         for(value=0; value<BOXSIZE; value++){
-            issue[boxid].stat.unconfirmed_value_num_rows[value] = BOXSIZE;
-            issue[boxid].stat.unconfirmed_value_num_colums[value] = BOXSIZE;
-            
+			int index;
+
+			for(index=0; index<TABLESIZE; index++){
+				issue[boxid].stat.unconfirmed_value_num_rows[value][index] = TABLESIZE;
+				issue[boxid].stat.unconfirmed_value_num_colums[value][index] = TABLESIZE;
+			}
+
             issue[boxid].stat.confirmed_rows[value] = 0;
             issue[boxid].stat.confirmed_colums[value] = 0;
         }
@@ -251,6 +267,6 @@ int init(){
 int main(int argc, char* argv[]){
     if(-1 == init()) return -1;
 
-    print_result();
+    //print_result();
     return 0;
 }
