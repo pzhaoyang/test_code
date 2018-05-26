@@ -49,14 +49,22 @@ box_t   issue[TABLESIZE]={0};
 
 void debug_stat(){
     int row, colum;
+    int printed_record[TABLESIZE]={0};
 
     for(row=0; row<TABLESIZE; row++){
         for(colum=0; colum<TABLESIZE; colum++){
             //int r = row%BOXSIZE;
             //int c = colum%BOXSIZE;
             int boxid = row/BOXSIZE*3 + colum/BOXSIZE;
-
             int i, index;
+
+
+            if( printed_record[boxid] == 0){
+                printed_record[boxid] = 1;
+            }else{
+                continue;
+            }
+
             printf("-------------------------------------------------------------------------------------\n");
             printf("boxid:\t\t\t\t\t%d\n", boxid);
             {
@@ -201,42 +209,47 @@ int read_template(){
 
         for(r=0; r<BOXSIZE; r++){
             for(c=0; c<BOXSIZE; c++){
+                // a value is confirmed
                 if(line[issue[boxid].position.row + r ][issue[boxid].position.colum + c] != NumNULL){
                     int i;
                     int index=(int)(line[issue[boxid].position.row + r ][issue[boxid].position.colum + c] - NumNULL - 1);
 
+                    //set confirmed value
                     issue[boxid].cell[r][c].value[0] = line[issue[boxid].position.row + r ][issue[boxid].position.colum + c];
-                    //printf("%c ", issue[boxid].cell[r][c].value[0]);
+
+                    //set confirmed flag
                     issue[boxid].cell[r][c].confirmed = 1;
 
+                    //confirmed number increase 1
                     issue[boxid].stat.confirmed_num += 1;
+
+                    //confirmed row numbers of value
                     issue[boxid].stat.confirmed_rows[r] += 1;
+
+                    //confirmed colum numbers of value
                     issue[boxid].stat.confirmed_colums[c] += 1;
 
-                    issue[boxid].stat.unconfirmed_value_num[index] = 0; // the confirmed value in unconfirmed array is 0.
+                    // the confirmed value in unconfirmed array is 0.
+                    issue[boxid].stat.unconfirmed_value_num[index] = 0;
 
-                    for(i=0; i< TABLESIZE; i++){
-                        if(issue[boxid].stat.unconfirmed_value_num[i] > 0){
-                            issue[boxid].stat.unconfirmed_value_num[i] -= 1; //when a value is confirmed the unconfirmed value will minus 1.
-                        }
+                    // every rows the confirmed value in unconfirmed row array is 0.
+                    for(i=0; i< BOXSIZE; i++){
+                        issue[boxid].stat.unconfirmed_value_num_rows[i][index] = 0;
+                        issue[boxid].stat.unconfirmed_value_num_colums[i][index] = 0;
                     }
 
-                    issue[boxid].stat.unconfirmed_value_num_rows[r][index] = 0; // the confirmed value in unconfirmed array is 0.
-                    issue[boxid].stat.unconfirmed_value_num_colums[c][index] = 0; // the confirmed value in unconfirmed array is 0.
-                    for(i=0; i< BOXSIZE; i++){
-                        int idx;
-
-                        //every row/colum will set 0 when a value is confirmed
-                        for(idx=0; idx< TABLESIZE; idx++){
-                            if(issue[boxid].stat.unconfirmed_value_num_rows[i][idx] > 0){
-                                issue[boxid].stat.unconfirmed_value_num_rows[i][idx] -= 1; //when a value is confirmed the unconfirmed value will minus 1.
-                            }
+                    //because the value is confirmed, so the other values in array of unconfirmed all will be minus 1.
+                    for(i=0; i< TABLESIZE; i++){
+                        if(issue[boxid].stat.unconfirmed_value_num[i] > 0){
+                            issue[boxid].stat.unconfirmed_value_num[i] -= 1;
                         }
 
-                        for(idx=0; idx< TABLESIZE; idx++){
-                            if(issue[boxid].stat.unconfirmed_value_num_colums[i][idx] > 0){
-                                issue[boxid].stat.unconfirmed_value_num_colums[i][idx] -= 1; //when a value is confirmed the unconfirmed value will minus 1.
-                            }
+                        if(issue[boxid].stat.unconfirmed_value_num_rows[r][i] >0 ){
+                            issue[boxid].stat.unconfirmed_value_num_rows[r][i] -= 1;
+                        }
+
+                        if(issue[boxid].stat.unconfirmed_value_num_colums[c][i] >0 ){
+                            issue[boxid].stat.unconfirmed_value_num_colums[c][i] -= 1;
                         }
                     }
                 }
@@ -244,9 +257,9 @@ int read_template(){
         }
     }
 
-    printf("\nTemplate:\n{\n");
+    printf("\nTemplate:\n- - - - - - - - \n");
     print_template();
-    printf("}\n\n");
+    printf("- - - - - - - - -\n\n");
 
     fclose(fp);
 
