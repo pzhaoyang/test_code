@@ -2,7 +2,7 @@ bin := timestamp
 hdr := timestamp.h
 src := main.c
 CC := gcc
-CFLGS = -g
+CFLGS = -g -W
 RM = rm -rf
 
 .PHONY: all clean

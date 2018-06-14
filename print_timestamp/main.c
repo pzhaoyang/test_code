@@ -6,7 +6,7 @@
 
 void main(){
     while(1){
-        DEBUG("sleep 1s\n");
+        ANTS_DEBUG("sleep %s 1s", "aa");
         sleep(1);
     }
 }
